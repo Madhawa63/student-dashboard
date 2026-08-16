@@ -1097,12 +1097,15 @@ let students = [];
     try {
         students = await db.students.toArray();
 
-        // Database එකේ Data නැතිනම් Raw JSON URL එකෙන් Load කරගැනීම
         if (students.length === 0) {
+            console.log("Fetching from students.json...");
             const response = await fetch('https://raw.githubusercontent.com/Madhawa63/student-dashboard/refs/heads/main/students.json');
-            students = await response.json();
-            
-            // අවශ්‍ය නම් මෙතැනදී db.students.bulkPut(students) මඟින් Dexie DB එකට save කරගත හැක
+            const jsonData = await response.json();
+
+            if (Array.isArray(jsonData) && jsonData.length > 0) {
+                await db.students.bulkPut(jsonData);
+                students = await db.students.toArray();
+            }
         }
     } catch (err) {
         console.error('Error fetching students:', err);

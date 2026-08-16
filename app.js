@@ -1,13 +1,13 @@
-// App එක Load වෙද්දීම Data Fetch කර Dexie DB එකට Save කිරීම
 async function autoSeedDatabase() {
     try {
         const count = await db.students.count();
         if (count === 0) {
-            console.log("Database is empty. Fetching initial student data...");
-            const response = await fetch('https://raw.githubusercontent.com/Madhawa63/student-dashboard/refs/heads/main/students.json');
+            console.log("Fetching local students.json...");
+            // එකම Repo එකේ ඇති නිසා ./students.json ලෙස ලබා දෙන්න
+            const response = await fetch('./students.json');
             const rawJsonData = await response.json();
 
-            // JSON Row structure එක JavaScript Student Objects වලට හරවා ගැනීම
+            // JSON Row structure එක Format කර ගැනීම
             const formattedStudents = rawJsonData.slice(1).map((item, index) => ({
                 id: index + 1,
                 regNo: item.B || `REG-${index + 1}`,
@@ -24,8 +24,7 @@ async function autoSeedDatabase() {
 
             if (formattedStudents.length > 0) {
                 await db.students.bulkPut(formattedStudents);
-                console.log("Data successfully seeded into Dexie DB!");
-                // Database එකට Save වූ පසු Page එක Refresh කර UI එක Update කිරීම
+                console.log("Data successfully loaded into Dexie DB!");
                 window.location.reload();
             }
         }
@@ -34,7 +33,6 @@ async function autoSeedDatabase() {
     }
 }
 
-// Event Listener එක හරහා Page එක Load වූ වහාම Run කිරීම
 document.addEventListener('DOMContentLoaded', autoSeedDatabase);
 
 // Helper for Google Drive Image Links

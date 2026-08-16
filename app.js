@@ -1093,18 +1093,20 @@ async function generateReportPDF() {
         alert('Please select at least one column to print.');
         return;
     }
-    
-    let students = [];
+let students = [];
     try {
         students = await db.students.toArray();
+
+        // Database එකේ Data නැතිනම් Raw JSON URL එකෙන් Load කරගැනීම
+        if (students.length === 0) {
+            const response = await fetch('https://raw.githubusercontent.com/Madhawa63/student-dashboard/refs/heads/main/students.json');
+            students = await response.json();
+            
+            // අවශ්‍ය නම් මෙතැනදී db.students.bulkPut(students) මඟින් Dexie DB එකට save කරගත හැක
+        }
     } catch (err) {
-        console.error('Error fetching students for printing:', err);
+        console.error('Error fetching students:', err);
         alert('Failed to fetch student data.');
-        return;
-    }
-    
-    if (students.length === 0) {
-        alert('No student records found to print.');
         return;
     }
     
